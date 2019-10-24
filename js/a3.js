@@ -13,39 +13,39 @@ const m = {
 
 // load data and make scatter plot after window loads
 svgScatterPlot = d3.select('body')
-  .append('svg')
-  .attr('width', m.width)
-  .attr('height', m.height)
+    .append('svg')
+    .attr('width', m.width)
+    .attr('height', m.height)
 
 // d3.csv is basically fetch but it can be be passed a csv file as a parameter
 d3.csv("./data/dataEveryYear.csv")
-  .then((csvData) => {
-    data = csvData
-    allYearsData = csvData
-    funcs = makeAxesAndLabels()
-    makeScatterPlot(1960, funcs) // initial scatter plot
-})
-.then(() => {
-    var allGroup = [];
-    let timeExtent = d3.extent(allYearsData.map((row) => row["time"]))
-    for (let i = timeExtent[0]; i <= timeExtent[1]; i++) {
-        allGroup.push(i);
-    }
-
-    // create dropdown menu by year
-    d3.select('#dropdown')
-      .selectAll('myOptions')
-      .data(allGroup)
-      .enter()
-      .append('option')
-      .text(function (d) { return d; })
-      .attr("value", function (d) { return d; })
-
-    d3.select('#dropdown').on('change', function() {
-        makeScatterPlot(1961, funcs)
+    .then((csvData) => {
+        data = csvData
+        allYearsData = csvData
+        funcs = makeAxesAndLabels()
+        makeScatterPlot(1960, funcs) // initial scatter plot
     })
-    
-})
+    .then(() => {
+        var allGroup = [];
+        let timeExtent = d3.extent(allYearsData.map((row) => row["time"]))
+        for (let i = timeExtent[0]; i <= timeExtent[1]; i++) {
+            allGroup.push(i);
+        }
+
+        // create dropdown menu by year
+        d3.select('#dropdown')
+            .selectAll('myOptions')
+            .data(allGroup)
+            .enter()
+            .append('option')
+            .text(function (d) { return d; })
+            .attr("value", function (d) { return d; })
+
+        d3.select('#dropdown').on('change', function () {
+            var newYear = eval(d3.select(this).property('value'));
+            makeScatterPlot(newYear, funcs)
+        })
+    })
 
 function makeAxesAndLabels() {
     // get fertility_rate and life_expectancy arrays
@@ -56,8 +56,8 @@ function makeAxesAndLabels() {
     const limits = findMinMax(fertilityData, lifeData)
 
     // draw axes and return scaling + mapping functions
-    const funcs = drawAxes(limits, "fertility_rate", "life_expectancy", svgScatterPlot, 
-        {min: m.marginAll, max: m.width - m.marginAll}, {min: m.marginAll, max: m.height - m.marginAll})
+    const funcs = drawAxes(limits, "fertility_rate", "life_expectancy", svgScatterPlot,
+        { min: m.marginAll, max: m.width - m.marginAll }, { min: m.marginAll, max: m.height - m.marginAll })
 
     // draw title and axes labels
     makeLabels()
@@ -125,8 +125,8 @@ function plotData(map) {
 
     // make tooltip
     let div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("opacity", 0)
 
     /*******************************************************
      * Enter, Update, Exit pattern
@@ -150,22 +150,22 @@ function plotData(map) {
         // add tooltip functionality to points
         .on("mouseover", (d) => {
             div.transition()
-            .duration(200)
-            .style("opacity", .9)
+                .duration(200)
+                .style("opacity", .9)
             div.html(
                 "Fertility: " + d.fertility_rate + "<br/>" +
                 "Life Expectancy: " + d.life_expectancy + "<br/>" +
-                "Population: " + numberWithCommas(d["pop_mlns"]*1000000) + "<br/>" +
+                "Population: " + numberWithCommas(d["pop_mlns"] * 1000000) + "<br/>" +
                 "Year of Year: " + d.time + "<br/>" +
                 "Country: " + d.location
             )
-            .style("left", (d3.event.pageX) + "px")
-            .style("top", (d3.event.pageY - 28) + "px")
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px")
         })
         .on("mouseout", (d) => {
             div.transition()
-            .duration(500)
-            .style("opacity", 0)
+                .duration(500)
+                .style("opacity", 0)
         })
 
 }
@@ -178,7 +178,7 @@ function plotData(map) {
 // rangeY -> and object of the form {min: yourYMinimum, max: yourYMaximum}
 function drawAxes(limits, x, y, svg, rangeX, rangeY) {
     // return x value from a row of data
-    let xValue = function(d) { return +d[x] }
+    let xValue = function (d) { return +d[x] }
 
     // function to scale x value
     let xScale = d3.scaleLinear()
@@ -186,7 +186,7 @@ function drawAxes(limits, x, y, svg, rangeX, rangeY) {
         .range([rangeX.min, rangeX.max])
 
     // xMap returns a scaled x value from a row of data
-    let xMap = function(d) { return xScale(xValue(d)) }
+    let xMap = function (d) { return xScale(xValue(d)) }
 
     // plot x-axis at bottom of SVG
     let xAxis = d3.axisBottom().scale(xScale)
@@ -196,11 +196,11 @@ function drawAxes(limits, x, y, svg, rangeX, rangeY) {
         .call(xAxis)
 
     // return y value from a row of data
-    let yValue = function(d) { return +d[y]}
+    let yValue = function (d) { return +d[y] }
 
     // function to scale y
     let yScale = d3.scaleLinear()
-        .domain([limits.yMax , limits.yMin - 5]) // give domain buffer
+        .domain([limits.yMax, 10]) // give domain buffer
         .range([rangeY.min, rangeY.max])
 
     // yMap returns a scaled y value from a row of data
@@ -234,10 +234,10 @@ function findMinMax(x, y) {
 
     // return formatted min/max data as an object
     return {
-        xMin : xMin,
-        xMax : xMax,
-        yMin : yMin,
-        yMax : yMax
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
     }
 }
 
